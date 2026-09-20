@@ -1,6 +1,6 @@
 import random
 import tkinter as tk
-from agent import SimpleReflexAgent, ModelBasedAgent
+from agent import SimpleReflexAgent, ModelBasedAgent, SearchAgent
 
 
 class VisualGridHuntGame:
@@ -84,8 +84,12 @@ class VisualGridHuntGame:
         )
 
         return {
+            'agent_pos': list(self.agent_pos),
             'wall_ahead': wall_ahead,
-            'food_here': tuple(self.agent_pos) in self.food_positions
+            'food_here': tuple(self.agent_pos) in self.food_positions,
+            'grid_size': (self.width, self.height),
+            'walls': list(self.walls),
+            'all_food': list(self.food_positions)
         }
 
     def execute_action(self, action: str):
@@ -164,7 +168,7 @@ class GridGameGUI:
         agent=None
     ):
         self.root = root
-        self.agent = agent if agent is not None else ModelBasedAgent()
+        self.agent = agent if agent is not None else SearchAgent()
 
         self.root.title(
             "IT3012 - Scalable Multi-Agent Grid Hunt"

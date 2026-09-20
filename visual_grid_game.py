@@ -1,5 +1,6 @@
 import random
 import tkinter as tk
+from agent import SimpleReflexAgent, ModelBasedAgent
 
 
 class VisualGridHuntGame:
@@ -9,6 +10,7 @@ class VisualGridHuntGame:
         self.width = width
         self.height = height
         self.agent_pos = [0, 0]
+        self.agent_dir = 'Up'
 
         if custom_walls is not None:
             self.walls = set(custom_walls)
@@ -61,23 +63,37 @@ class VisualGridHuntGame:
         self.collision = False
 
     def get_percept(self) -> dict:
+        x, y = self.agent_pos
+        if self.agent_dir == 'Up':
+            ahead = (x, y + 1)
+        elif self.agent_dir == 'Down':
+            ahead = (x, y - 1)
+        elif self.agent_dir == 'Left':
+            ahead = (x - 1, y)
+        elif self.agent_dir == 'Right':
+            ahead = (x + 1, y)
+        else:
+            ahead = (x, y + 1)
+
+        wall_ahead = (
+            ahead in self.walls
+            or ahead[0] < 0
+            or ahead[0] >= self.width
+            or ahead[1] < 0
+            or ahead[1] >= self.height
+        )
+
         return {
-            'agent_pos': list(self.agent_pos),
-            'opponent_positions': [list(op) for op in self.opponents],
-            'smells_food': tuple(self.agent_pos) in self.food_positions,
-
-            # PRACTICAL 01 - toxin sensor
-            'smells_toxin': tuple(self.agent_pos) in self.toxic_traps,
-
-            'hit_wall': tuple(self.agent_pos) in self.walls,
-            'collision': self.collision,
-            'score': self.score,
-            'remaining_food': len(self.food_positions)
+            'wall_ahead': wall_ahead,
+            'food_here': tuple(self.agent_pos) in self.food_positions
         }
 
     def execute_action(self, action: str):
         self.steps += 1
         new_pos = list(self.agent_pos)
+
+        if action in ['Up', 'Down', 'Left', 'Right']:
+            self.agent_dir = action
 
         if action == 'Up':
             new_pos[1] = min(self.height - 1, new_pos[1] + 1)
@@ -144,9 +160,11 @@ class GridGameGUI:
         height=10,
         num_food=12,
         num_opponents=2,
-        walls=None
+        walls=None,
+        agent=None
     ):
         self.root = root
+        self.agent = agent if agent is not None else ModelBasedAgent()
 
         self.root.title(
             "IT3012 - Scalable Multi-Agent Grid Hunt"
@@ -332,9 +350,8 @@ class GridGameGUI:
 
             if not self.env.is_done():
 
-                action = random.choice(
-                    ['Up', 'Down', 'Left', 'Right']
-                )
+                percept = self.env.get_percept()
+                action = self.agent.sense_and_act(percept)
 
                 self.env.execute_action(action)
 

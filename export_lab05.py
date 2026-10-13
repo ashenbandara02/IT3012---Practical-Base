@@ -40,7 +40,7 @@ story.append(Paragraph('Discussion: Beam search versus independent hill climbing
 paragraph('Local Beam Search pools successors from all three states and selects the best three overall. All selected states can descend from one parent and converge on the same region. Three independent Hill Climbing runs select a neighbour separately for each run, so one run cannot replace the others. Independent runs generally retain more diversity, although they may still reach the same peak.')
 story.append(Paragraph('Discussion: Expensive objective with a fixed evaluation budget', styles['Heading2']))
 paragraph('I would choose Simulated Annealing, which evaluates one proposed neighbour per iteration. I would enforce an evaluation counter and stop when the budget is exhausted, using a moderate initial temperature and a cooling rate matched to that budget. For B moves and desired final temperature Tf, choose alpha = (Tf / T0) ** (1 / B). The recorded 0.50 run stopped after 8 steps, whereas 0.99 explored for 528 steps. Rapid cooling restricts exploration; very slow cooling can consume the budget before sufficient exploitation. Local Beam Search with k = 3 evaluates 15 successors per iteration, making it more costly for the same iteration count. The observations are individual stochastic runs, so they do not establish that slow cooling always yields a better result.')
-paragraph('GitHub: https://github.com/ashenbandara02/IT3012---Practical-Base')
+paragraph('GitHub: https://github.com/ashenbandara02/IT3012---Practical-Base/tree/Week_05')
 
 def footer(canvas, doc):
     canvas.setFont('Helvetica', 8)
